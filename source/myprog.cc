@@ -1,4 +1,4 @@
-#include <cstddef>
+#include <cstdint>
 #include <iostream>
 #include <cstring>
 
@@ -18,8 +18,8 @@
 #define WIN_HEIGHT 800
 #define WIN_BCK_COLOR H_RGB(0x0D1117)
 #define BTNS_COLOR H_RGB(0x010409)
-#define BTN_PORT_MONITOR_WIDTH WIN_WIDTH / 2
-#define BTN_PORT_MONITOR_HEIGHT 60
+#define BTNS_FRAME_COLOR H_RGB(0x31363D)
+#define BTNS_HEIGHT 60
 
 enum UserEventType {
     EVENT_BTN_PORT_MONITOR,
@@ -43,28 +43,43 @@ class MainWindow : public Window {
 
 void MainWindow::OnCreate() {
     std::cout << "MainWindow::OnCreate()" << std::endl;
-
-    TextButton *pBtn;
     
-    pBtn = new TextButton("Монитор порта", EVENT_BTN_PORT_MONITOR);
-    AddChild(pBtn, Point(0, 0), Rect(BTN_PORT_MONITOR_WIDTH, BTN_PORT_MONITOR_HEIGHT));
-    pBtn->SetBackColor(BTNS_COLOR);
-    pBtn->SetDarkColor(BTNS_COLOR);
-    pBtn->SetLiteColor(BTNS_COLOR);
-    pBtn->SetFrameColor(H_RGB(0x31363D));
-    pBtn->SetFontSize(26);
-    pBtn->SetTextColor(H_RGB(0xffffff));
+    Rect window_size =  this->GetInteriorSize();
+    uint16_t btns_width = window_size.GetWidth() / 2;
+    uint16_t btns_height = BTNS_HEIGHT;
+    m_pBtnPortMonitor = new TextButton("Монитор порта", EVENT_BTN_PORT_MONITOR);
+    AddChild(m_pBtnPortMonitor, Point(0, 0), Rect(btns_width, btns_height));
+    m_pBtnPortMonitor->SetBackColor(BTNS_COLOR);
+    m_pBtnPortMonitor->SetDarkColor(BTNS_COLOR);
+    m_pBtnPortMonitor->SetLiteColor(BTNS_COLOR);
+    m_pBtnPortMonitor->SetFrameColor(BTNS_FRAME_COLOR);
+    m_pBtnPortMonitor->SetFontSize(26);
+    m_pBtnPortMonitor->SetTextColor(H_RGB(0xffffff));
 
-    pBtn = new TextButton("Визуализация", EVENT_BTN_VISUALIZATION);
-    AddChild(pBtn, Point(BTN_PORT_MONITOR_WIDTH, 0), Rect(BTN_PORT_MONITOR_WIDTH, BTN_PORT_MONITOR_HEIGHT));
-    pBtn->SetBackColor(BTNS_COLOR);
-    pBtn->SetDarkColor(BTNS_COLOR);
-    pBtn->SetLiteColor(BTNS_COLOR);
-    pBtn->SetFrameColor(H_RGB(0x31363D));
-    pBtn->SetFontSize(26);
-    pBtn->SetTextColor(H_RGB(0xffffff));
+    m_pBtnVisualization = new TextButton("Визуализация", EVENT_BTN_VISUALIZATION);
+    AddChild(m_pBtnVisualization, Point(btns_width, 0), Rect(btns_width, btns_height));
+    m_pBtnVisualization->SetBackColor(BTNS_COLOR);
+    m_pBtnVisualization->SetDarkColor(BTNS_COLOR);
+    m_pBtnVisualization->SetLiteColor(BTNS_COLOR);
+    m_pBtnVisualization->SetFrameColor(BTNS_FRAME_COLOR);
+    m_pBtnVisualization->SetFontSize(26);
+    m_pBtnVisualization->SetTextColor(H_RGB(0xffffff));
 
     CaptureKeyboard(this);
+}
+
+void MainWindow::OnSizeChanged() {
+    Rect window_size =  this->GetInteriorSize();
+    uint16_t btns_width = window_size.GetWidth() / 2;
+    uint16_t btns_height = BTNS_HEIGHT;
+
+    m_pBtnPortMonitor->SetSize(Rect(btns_width, btns_height));
+    m_pBtnPortMonitor->SetPosition(Point(0, 0));
+    m_pBtnPortMonitor->ReDraw();
+
+    m_pBtnVisualization->SetSize(Rect(btns_width, btns_height));
+    m_pBtnVisualization->SetPosition(Point(btns_width, 0));
+    m_pBtnVisualization->SetBackColor(BTNS_COLOR);
 }
 
 void MainWindow::OnDraw(Context *cr) {
@@ -94,8 +109,6 @@ bool MainWindow::OnKeyPress(uint64_t keyval) {
     }
     return true;
 }
-
-void MainWindow::OnSizeChanged() {}
 
 int main(int argc, char **argv) {
     MainWindow *pWindow = new MainWindow;
