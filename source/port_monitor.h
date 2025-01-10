@@ -42,6 +42,7 @@ class PortMonitor : public List {
     std::thread thread_read;
     RGB m_backColor;
 
+    void Delete(const uint16_t n);
     void Setup();
     void Run();
 };

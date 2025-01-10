@@ -70,6 +70,7 @@ void MainWindow::OnCreate() {
     m_pPortMonitor = new PortMonitor();
     m_pPortMonitor->SetBackColor(WIN_BCK_COLOR);
     m_pPortMonitor->SetElementHeight(PM_LINE_HEIGHT);
+    m_pPortMonitor->SetSelBackColor(RGB(0, 1, 0));
     m_pSclPortMonitor->SetDataWindow(m_pPortMonitor);
 
 #if 0
