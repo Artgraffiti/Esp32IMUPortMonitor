@@ -21,6 +21,9 @@
 enum UserEventType {
     EVENT_BTN_PORT_MONITOR = 5,
     EVENT_BTN_VISUALIZATION,
+    EVENT_BTN_CLEAR,
+    EVENT_BTN_START,
+    EVENT_BTN_STOP,
 };
 
 class MainWindow : public Window {
@@ -33,7 +36,7 @@ class MainWindow : public Window {
     void OnNotify(Window *child, uint32_t type, const Point &position);
 
    private:
-    TextButton *m_pBtnPortMonitor, *m_pBtnVisualization;
+    TextButton *m_pBtnPortMonitor, *m_pBtnVisualization, *m_pBtnClear, *m_pBtnStart, *m_pBtnStop;
     Scroll *m_pSclPortMonitor;
     PortMonitor *m_pPortMonitor;
 };
@@ -66,12 +69,11 @@ void MainWindow::OnCreate() {
 
     m_pSclPortMonitor = new Scroll;
     m_pSclPortMonitor->SetBackColor(WIN_BCK_COLOR);
-    AddChild(m_pSclPortMonitor, Point(0, btns_height), Rect(WIN_WIDTH, WIN_HEIGHT - btns_height));
+    AddChild(m_pSclPortMonitor, Point(0, btns_height), Rect(WIN_WIDTH, WIN_HEIGHT - 2 * btns_height));
     m_pPortMonitor = new PortMonitor();
     m_pPortMonitor->SetElementHeight(PM_LINE_HEIGHT);
     m_pPortMonitor->SetSelBackColor(RGB(0, 1, 0));
     m_pSclPortMonitor->SetDataWindow(m_pPortMonitor);
-    m_pSclPortMonitor->Hide();
 
 #if 0
     for (int i = 0; i < 1000; i++) {
@@ -83,6 +85,34 @@ void MainWindow::OnCreate() {
         m_pPortMonitor->Insert(0, pTxt);
     }
 #endif
+
+    btns_width = WIN_WIDTH / 3;
+    m_pBtnClear = new TextButton("Очистить", EVENT_BTN_CLEAR);
+    AddChild(m_pBtnClear, Point(0, WIN_HEIGHT - btns_height), Rect(btns_width, btns_height));
+    m_pBtnClear->SetBackColor(BTNS_COLOR);
+    m_pBtnClear->SetDarkColor(BTNS_COLOR);
+    m_pBtnClear->SetLiteColor(BTNS_COLOR);
+    m_pBtnClear->SetFrameColor(BTNS_FRAME_COLOR);
+    m_pBtnClear->SetFontSize(26);
+    m_pBtnClear->SetTextColor(H_RGB(0xffffff));
+
+    m_pBtnStart = new TextButton("Старт", EVENT_BTN_START);
+    AddChild(m_pBtnStart, Point(btns_width, WIN_HEIGHT - btns_height), Rect(btns_width, btns_height));
+    m_pBtnStart->SetBackColor(BTNS_COLOR);
+    m_pBtnStart->SetDarkColor(BTNS_COLOR);
+    m_pBtnStart->SetLiteColor(BTNS_COLOR);
+    m_pBtnStart->SetFrameColor(BTNS_FRAME_COLOR);
+    m_pBtnStart->SetFontSize(26);
+    m_pBtnStart->SetTextColor(H_RGB(0xffffff));
+
+    m_pBtnStop = new TextButton("Стоп", EVENT_BTN_STOP);
+    AddChild(m_pBtnStop, Point(2 * btns_width, WIN_HEIGHT - btns_height), Rect(btns_width, btns_height));
+    m_pBtnStop->SetBackColor(BTNS_COLOR);
+    m_pBtnStop->SetDarkColor(BTNS_COLOR);
+    m_pBtnStop->SetLiteColor(BTNS_COLOR);
+    m_pBtnStop->SetFrameColor(BTNS_FRAME_COLOR);
+    m_pBtnStop->SetFontSize(26);
+    m_pBtnStop->SetTextColor(H_RGB(0xffffff));
 
     CaptureKeyboard(this);
 }
@@ -101,12 +131,23 @@ void MainWindow::OnNotify(Window *child, uint32_t type, const Point &position) {
 
     switch (type) {
         case EVENT_BTN_PORT_MONITOR:
-            m_pPortMonitor->Start();
             m_pSclPortMonitor->Show();
+            ReDraw();
             break;
         case EVENT_BTN_VISUALIZATION:
             m_pPortMonitor->Stop();
             m_pSclPortMonitor->Hide();
+            ReDraw();
+            break;
+        case EVENT_BTN_CLEAR:
+            m_pPortMonitor->Clear();
+            break;
+        case EVENT_BTN_START:
+            m_pPortMonitor->Clear();
+            m_pPortMonitor->Start();
+            break;
+        case EVENT_BTN_STOP:
+            m_pPortMonitor->Stop();
             break;
         default:;
     }

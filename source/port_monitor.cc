@@ -72,8 +72,7 @@ void PortMonitor::Run() {
 
         if (bytes_read == 0) {
             fprintf(stderr, "Timeout reached, no data received\n");
-            isRunning = false;
-            break;
+            continue;
         } else if (bytes_read < 0) {
             perror("Read Error");
             isRunning = false;
