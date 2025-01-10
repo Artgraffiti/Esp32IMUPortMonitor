@@ -2,7 +2,6 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
-#include <utility>
 
 #include "port_monitor.h"
 #include "cube.h"
@@ -120,7 +119,7 @@ void MainWindow::OnCreate() {
     m_pBtnStop->SetTextColor(H_RGB(0xffffff));
 
     // Rotation info
-    m_pTxtAngleX = new Text("Угол OX: 0");
+    m_pTxtAngleX = new Text("Крен: 0");
     AddChild(m_pTxtAngleX, Point(60, 100),
              Rect(TXT_INFO_WIDTH, TXT_INFO_HEIGHT));
     m_pTxtAngleX->SetFont(0, TXT_INFO_SIZE, -1, -1);
@@ -128,7 +127,7 @@ void MainWindow::OnCreate() {
     m_pTxtAngleX->SetAlignment(TEXT_ALIGNV_CENTER);
     m_pTxtAngleX->SetTextColor(RGB(1, 1, 1));
 
-    m_pTxtAngleY = new Text("Угол OY: 0");
+    m_pTxtAngleY = new Text("Тангаж: 0");
     AddChild(m_pTxtAngleY, Point(60, 140),
              Rect(TXT_INFO_WIDTH, TXT_INFO_HEIGHT));
     m_pTxtAngleY->SetFont(0, TXT_INFO_SIZE, -1, -1);
@@ -140,7 +139,10 @@ void MainWindow::OnCreate() {
     m_pSclPortMonitor->Hide();
     m_pCube = new RotatingCube();
     m_pCube->SetCubeSize(CUBE_SIZE);
-    AddChild(m_pCube, Point(WIN_WIDTH / 2 - CUBE_VIEW_WIDTH / 2, WIN_HEIGHT / 2 - CUBE_VIEW_HEIGHT / 2), Rect(CUBE_VIEW_WIDTH, CUBE_VIEW_HEIGHT));
+    AddChild(m_pCube,
+             Point(WIN_WIDTH / 2 - CUBE_VIEW_WIDTH / 2,
+                   WIN_HEIGHT / 2 - CUBE_VIEW_HEIGHT / 2),
+             Rect(CUBE_VIEW_WIDTH, CUBE_VIEW_HEIGHT));
 
     CaptureKeyboard(this);
 }
@@ -154,14 +156,14 @@ void MainWindow::OnDraw(Context *cr) {
 
     struct rotation *data;
     if (m_pPortMonitor->GetNumberOfElements() > 0) {
-        data = (rotation*)m_pPortMonitor->GetValue(0);
+        data = (rotation *)m_pPortMonitor->GetValue(0);
         m_pCube->SetAngleX(data->roll);
         m_pCube->SetAngleY(data->pitch);
 
         char txt1[30], txt2[30];
-        sprintf(txt1, "Угол OX: %.2f", data->roll);
+        sprintf(txt1, "Крен: %.2f", data->roll);
         m_pTxtAngleX->SetText(txt1);
-        sprintf(txt2, "Угол OY: %.2f", data->pitch);
+        sprintf(txt2, "Тангаж: %.2f", data->pitch);
         m_pTxtAngleY->SetText(txt2);
     }
 

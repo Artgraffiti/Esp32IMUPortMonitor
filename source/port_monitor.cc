@@ -1,9 +1,10 @@
 #include "port_monitor.h"
-#include <cstdio>
-#include <string>
-#include <regex>
 
-void remove_color_sequences(std::string& str) {
+#include <cstdio>
+#include <regex>
+#include <string>
+
+void remove_color_sequences(std::string &str) {
     // Регулярное выражение для ANSI escape sequences
     std::regex color_regex("\033\\[[0-9;]*m");
     str = std::regex_replace(str, color_regex, "");
@@ -98,7 +99,8 @@ void PortMonitor::Run() {
                 std::string formated_line = line;
                 remove_color_sequences(formated_line);
                 struct rotation data;
-                sscanf(formated_line.c_str(), "%*[^r]roll=%f%*[^p]pitch=%f", &data.roll, &data.pitch);
+                sscanf(formated_line.c_str(), "%*[^r]roll=%f%*[^p]pitch=%f",
+                       &data.roll, &data.pitch);
 
                 // Add new line as element
                 Text *pTxt = new Text(formated_line.c_str());
