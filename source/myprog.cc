@@ -26,7 +26,6 @@ enum UserEventType {
 class MainWindow : public Window {
    public:
     MainWindow() { m_ClassName = __FUNCTION__; }
-    ~MainWindow() { m_pLstPortMonitor->Stop(); }
 
     void OnCreate();
     void OnDraw(Context *cr);
