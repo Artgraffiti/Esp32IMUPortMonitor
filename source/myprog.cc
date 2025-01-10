@@ -1,9 +1,10 @@
 #include <cstdint>
 #include <cstdio>
-#include <iostream>
 #include <cstring>
+#include <iostream>
 
 #include "port_monitor.h"
+#include "cube.h"
 
 #define H_RGB(hex)                                \
     RGB((double)(((hex) & 0xff0000) >> 16) / 256, \
@@ -36,15 +37,17 @@ class MainWindow : public Window {
     void OnNotify(Window *child, uint32_t type, const Point &position);
 
    private:
-    TextButton *m_pBtnPortMonitor, *m_pBtnVisualization, *m_pBtnClear, *m_pBtnStart, *m_pBtnStop;
+    TextButton *m_pBtnPortMonitor, *m_pBtnVisualization, *m_pBtnClear,
+        *m_pBtnStart, *m_pBtnStop;
     Scroll *m_pSclPortMonitor;
     PortMonitor *m_pPortMonitor;
+    RotatingCube *m_pCube;
 };
 
 void MainWindow::OnCreate() {
     std::cout << "MainWindow::OnCreate()" << std::endl;
-    
-    Rect window_size =  this->GetInteriorSize();
+
+    Rect window_size = this->GetInteriorSize();
     uint16_t btns_width = window_size.GetWidth() / 2;
     uint16_t btns_height = BTNS_HEIGHT;
     m_pBtnPortMonitor = new TextButton("Монитор порта", EVENT_BTN_PORT_MONITOR);
@@ -69,26 +72,17 @@ void MainWindow::OnCreate() {
 
     m_pSclPortMonitor = new Scroll;
     m_pSclPortMonitor->SetBackColor(WIN_BCK_COLOR);
-    AddChild(m_pSclPortMonitor, Point(0, btns_height), Rect(WIN_WIDTH, WIN_HEIGHT - 2 * btns_height));
+    AddChild(m_pSclPortMonitor, Point(0, btns_height),
+             Rect(WIN_WIDTH, WIN_HEIGHT - 2 * btns_height));
     m_pPortMonitor = new PortMonitor("/dev/ttyACM0");
     m_pPortMonitor->SetElementHeight(PM_LINE_HEIGHT);
     m_pPortMonitor->SetSelBackColor(RGB(0, 1, 0));
     m_pSclPortMonitor->SetDataWindow(m_pPortMonitor);
 
-#if 0
-    for (int i = 0; i < 1000; i++) {
-        char buff[20];
-        sprintf(buff, "Hello %d", i);
-        Text *pTxt = new Text(buff);
-        pTxt->SetFont(0, 16, -1, -1);
-        pTxt->SetAlignment(TEXT_ALIGNV_MASK);
-        m_pPortMonitor->Insert(0, pTxt);
-    }
-#endif
-
     btns_width = WIN_WIDTH / 3;
     m_pBtnClear = new TextButton("Очистить", EVENT_BTN_CLEAR);
-    AddChild(m_pBtnClear, Point(0, WIN_HEIGHT - btns_height), Rect(btns_width, btns_height));
+    AddChild(m_pBtnClear, Point(0, WIN_HEIGHT - btns_height),
+             Rect(btns_width, btns_height));
     m_pBtnClear->SetBackColor(BTNS_COLOR);
     m_pBtnClear->SetDarkColor(BTNS_COLOR);
     m_pBtnClear->SetLiteColor(BTNS_COLOR);
@@ -97,7 +91,8 @@ void MainWindow::OnCreate() {
     m_pBtnClear->SetTextColor(H_RGB(0xffffff));
 
     m_pBtnStart = new TextButton("Старт", EVENT_BTN_START);
-    AddChild(m_pBtnStart, Point(btns_width, WIN_HEIGHT - btns_height), Rect(btns_width, btns_height));
+    AddChild(m_pBtnStart, Point(btns_width, WIN_HEIGHT - btns_height),
+             Rect(btns_width, btns_height));
     m_pBtnStart->SetBackColor(BTNS_COLOR);
     m_pBtnStart->SetDarkColor(BTNS_COLOR);
     m_pBtnStart->SetLiteColor(BTNS_COLOR);
@@ -106,13 +101,20 @@ void MainWindow::OnCreate() {
     m_pBtnStart->SetTextColor(H_RGB(0xffffff));
 
     m_pBtnStop = new TextButton("Стоп", EVENT_BTN_STOP);
-    AddChild(m_pBtnStop, Point(2 * btns_width, WIN_HEIGHT - btns_height), Rect(btns_width, btns_height));
+    AddChild(m_pBtnStop, Point(2 * btns_width, WIN_HEIGHT - btns_height),
+             Rect(btns_width, btns_height));
     m_pBtnStop->SetBackColor(BTNS_COLOR);
     m_pBtnStop->SetDarkColor(BTNS_COLOR);
     m_pBtnStop->SetLiteColor(BTNS_COLOR);
     m_pBtnStop->SetFrameColor(BTNS_FRAME_COLOR);
     m_pBtnStop->SetFontSize(26);
     m_pBtnStop->SetTextColor(H_RGB(0xffffff));
+
+    // Draw Cube
+    m_pSclPortMonitor->Hide();
+    m_pCube = new RotatingCube();
+    m_pCube->SetCubeSize(80);
+    AddChild(m_pCube, Point(700, 200), Rect(400, 400));
 
     CaptureKeyboard(this);
 }
@@ -123,6 +125,9 @@ void MainWindow::OnDraw(Context *cr) {
 
     cr->SetColor(WIN_BCK_COLOR);
     cr->FillRectangle(Point(0, 0), wsize);
+    m_pCube->SetAngleX(m_pCube->GetAngleX() + 2);
+    // m_pCube->SetAngleY(m_pCube->GetAngleY() + 2);
+
     CaptureKeyboard(this);
 }
 
@@ -159,7 +164,6 @@ bool MainWindow::OnKeyPress(uint64_t keyval) {
             DeleteMe();
             return true;
         case 'c':
-            m_pSclPortMonitor->Show();
             m_pPortMonitor->Start();
             break;
         case 's':

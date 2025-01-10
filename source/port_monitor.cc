@@ -2,7 +2,7 @@
 
 void PortMonitor::OnDraw(Context *cr) {
     cr->SetColor(GetBackColor());
-    cr->FillRectangle(Point(0,0), GetInteriorSize());
+    cr->FillRectangle(Point(0, 0), GetInteriorSize());
 }
 
 void PortMonitor::Start() {
@@ -81,9 +81,9 @@ void PortMonitor::Run() {
 
         // Пользовательское построчное чтение
         for (int i = 0; i < bytes_read; i++) {
-            if ((0 < read_buffer[i] && read_buffer[i] < 127) && // Only ASCII
+            if ((0 < read_buffer[i] && read_buffer[i] < 127) &&  // Only ASCII
                 (read_buffer[i] == '\n' || read_buffer[i] == '\0' ||
-                line_pos >= (int)(sizeof(line) - 1))) {
+                 line_pos >= (int)(sizeof(line) - 1))) {
                 line[line_pos] = '\0';  // Завершаем строку
                 line_pos = 0;  // Сбрасываем позицию для следующей строки
 
@@ -103,7 +103,8 @@ void PortMonitor::Run() {
     close(port_fd);
 }
 
-void PortMonitor::Insert(const uint16_t position, Window *pElement, void *value) {
+void PortMonitor::Insert(const uint16_t position, Window *pElement,
+                         void *value) {
     std::lock_guard<std::mutex> lock(mtx);
     List::Insert(position, pElement, value);
 }

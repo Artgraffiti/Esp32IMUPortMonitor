@@ -11,8 +11,8 @@ OBJS = $(addprefix $(OUT_O_DIR)/,$(SRCS:.cc=.o))
 OUT_O_DIR ?= build
 EXE = myprog
 
-MYPROG_SRCS = myprog.cc port_monitor.cc
-MYPROG_HDRS = port_monitor.h
+MYPROG_SRCS = myprog.cc port_monitor.cc cube.cc
+MYPROG_HDRS = port_monitor.h cube.h
 MYPROG_OBJS = $(addprefix $(OUT_O_DIR)/,$(MYPROG_SRCS:.cc=.o))
 
 .PHONY: all
@@ -30,7 +30,7 @@ $(EXE): $(LIB) $(MYPROG_OBJS) $(addprefix source/,$(MYPROG_HDRS))
 
 .PHONY: cif
 cif:
-	clang-format -i --style=file:$(CODE_STYLE_PATH) source/myprog.cc
+	clang-format -i --style=file:$(CODE_STYLE_PATH) $(addprefix source/,$(MYPROG_SRCS)) $(addprefix source/,$(MYPROG_HDRS))
 
 clean:
 	rm -rf $(LIB) $(EXE) $(OUT_O_DIR)/*
