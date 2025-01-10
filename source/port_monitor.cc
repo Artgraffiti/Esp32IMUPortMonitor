@@ -81,11 +81,13 @@ void PortMonitor::Run() {
                 (read_buffer[i] == '\n' || read_buffer[i] == '\0' ||
                 line_pos >= (int)(sizeof(line) - 1))) {
                 line[line_pos] = '\0';  // Завершаем строку
+                line_pos = 0;  // Сбрасываем позицию для следующей строки
+
+                // Add new line as element
                 Text *pTxt = new Text(line);
                 pTxt->SetFont(0, 16, -1, -1);
                 pTxt->SetAlignment(TEXT_ALIGNV_MASK);
                 Insert(0, pTxt);
-                line_pos = 0;  // Сбрасываем позицию для следующей строки
             } else {
                 line[line_pos++] = read_buffer[i];  // Добавляем символ в строку
             }

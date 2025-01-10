@@ -19,7 +19,7 @@
 #define PM_LINE_HEIGHT 20
 
 enum UserEventType {
-    EVENT_BTN_PORT_MONITOR,
+    EVENT_BTN_PORT_MONITOR = 2,
     EVENT_BTN_VISUALIZATION,
 };
 
@@ -32,7 +32,6 @@ class MainWindow : public Window {
     void OnDraw(Context *cr);
     bool OnKeyPress(uint64_t value);
     void OnNotify(Window *child, uint32_t type, const Point &position);
-    void OnSizeChanged();
 
    private:
     TextButton *m_pBtnPortMonitor, *m_pBtnVisualization;
@@ -84,21 +83,6 @@ void MainWindow::OnCreate() {
 #endif
 
     CaptureKeyboard(this);
-}
-
-void MainWindow::OnSizeChanged() {
-    Rect window_size = this->GetInteriorSize();
-    uint16_t btns_width = window_size.GetWidth() / 2;
-    uint16_t btns_height = BTNS_HEIGHT;
-
-    m_pBtnPortMonitor->SetSize(Rect(btns_width, btns_height));
-    m_pBtnPortMonitor->SetPosition(Point(0, 0));
-
-    m_pBtnVisualization->SetSize(Rect(btns_width, btns_height));
-    m_pBtnVisualization->SetPosition(Point(btns_width, 0));
-
-    m_pSclPortMonitor->SetSize(Rect(WIN_WIDTH, WIN_HEIGHT - btns_height));
-    m_pSclPortMonitor->SetPosition(Point(0, btns_height));
 }
 
 void MainWindow::OnDraw(Context *cr) {
