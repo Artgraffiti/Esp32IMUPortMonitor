@@ -23,7 +23,7 @@ void PortMonitor::Stop() {
 }
 
 void PortMonitor::Setup() {
-    port_fd = open("/dev/ttyACM0", O_RDONLY | O_NOCTTY);
+    port_fd = open(portPath.c_str(), O_RDONLY | O_NOCTTY);
     if (port_fd < 0) {
         perror("Error opening port");
         exit(EXIT_FAILURE);

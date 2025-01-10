@@ -70,7 +70,7 @@ void MainWindow::OnCreate() {
     m_pSclPortMonitor = new Scroll;
     m_pSclPortMonitor->SetBackColor(WIN_BCK_COLOR);
     AddChild(m_pSclPortMonitor, Point(0, btns_height), Rect(WIN_WIDTH, WIN_HEIGHT - 2 * btns_height));
-    m_pPortMonitor = new PortMonitor();
+    m_pPortMonitor = new PortMonitor("/dev/ttyACM0");
     m_pPortMonitor->SetElementHeight(PM_LINE_HEIGHT);
     m_pPortMonitor->SetSelBackColor(RGB(0, 1, 0));
     m_pSclPortMonitor->SetDataWindow(m_pPortMonitor);

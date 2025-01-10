@@ -15,6 +15,7 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include <string>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +23,7 @@
 
 class PortMonitor : public List {
    public:
-    PortMonitor() { isRunning = false; }
+    PortMonitor(const std::string &port_path) : portPath(port_path), isRunning(false) {}
     ~PortMonitor() { Stop(); }
     void OnDraw(Context *cr);
 
@@ -33,6 +34,7 @@ class PortMonitor : public List {
     void Clear();
    
    private:
+    std::string portPath;
     int port_fd;
     struct termios newPortSettings, oldPortSettings;
     std::atomic_bool isRunning;
