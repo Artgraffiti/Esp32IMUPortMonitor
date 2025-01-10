@@ -1,13 +1,9 @@
 #include <cstdint>
+#include <cstdio>
 #include <iostream>
 #include <cstring>
 
-#include "window.h"
-#include "text.h"
-#include "list.h"
-#include "image.h"
-#include "button.h"
-#include "GUI.h"
+#include "port_monitor.h"
 
 #define H_RGB(hex)                                \
     RGB((double)(((hex) & 0xff0000) >> 16) / 256, \
@@ -20,6 +16,7 @@
 #define BTNS_COLOR H_RGB(0x010409)
 #define BTNS_FRAME_COLOR H_RGB(0x31363D)
 #define BTNS_HEIGHT 60
+#define PM_LINE_HEIGHT 20
 
 enum UserEventType {
     EVENT_BTN_PORT_MONITOR,
@@ -29,7 +26,7 @@ enum UserEventType {
 class MainWindow : public Window {
    public:
     MainWindow() { m_ClassName = __FUNCTION__; }
-    ~MainWindow() {}
+    ~MainWindow() { m_pLstPortMonitor->Stop(); }
 
     void OnCreate();
     void OnDraw(Context *cr);
@@ -39,6 +36,8 @@ class MainWindow : public Window {
 
    private:
     TextButton *m_pBtnPortMonitor, *m_pBtnVisualization;
+    Scroll *m_pSclPortMonitor;
+    PortMonitor *m_pLstPortMonitor;
 };
 
 void MainWindow::OnCreate() {
@@ -56,8 +55,10 @@ void MainWindow::OnCreate() {
     m_pBtnPortMonitor->SetFontSize(26);
     m_pBtnPortMonitor->SetTextColor(H_RGB(0xffffff));
 
-    m_pBtnVisualization = new TextButton("Визуализация", EVENT_BTN_VISUALIZATION);
-    AddChild(m_pBtnVisualization, Point(btns_width, 0), Rect(btns_width, btns_height));
+    m_pBtnVisualization =
+        new TextButton("Визуализация", EVENT_BTN_VISUALIZATION);
+    AddChild(m_pBtnVisualization, Point(btns_width, 0),
+             Rect(btns_width, btns_height));
     m_pBtnVisualization->SetBackColor(BTNS_COLOR);
     m_pBtnVisualization->SetDarkColor(BTNS_COLOR);
     m_pBtnVisualization->SetLiteColor(BTNS_COLOR);
@@ -65,21 +66,39 @@ void MainWindow::OnCreate() {
     m_pBtnVisualization->SetFontSize(26);
     m_pBtnVisualization->SetTextColor(H_RGB(0xffffff));
 
+    m_pSclPortMonitor = new Scroll;
+    AddChild(m_pSclPortMonitor, Point(0, btns_height), Rect(WIN_WIDTH, WIN_HEIGHT - btns_height));
+    m_pLstPortMonitor = new PortMonitor();
+    m_pLstPortMonitor->SetElementHeight(PM_LINE_HEIGHT);
+    m_pSclPortMonitor->SetDataWindow(m_pLstPortMonitor);
+
+#if 0
+    for (int i = 0; i < 1000; i++) {
+        char buff[20];
+        sprintf(buff, "Hello %d", i);
+        Text *pTxt = new Text(buff);
+        pTxt->SetFont(0, 16, -1, -1);
+        pTxt->SetAlignment(TEXT_ALIGNV_MASK);
+        m_pLstPortMonitor->Insert(0, pTxt);
+    }
+#endif
+
     CaptureKeyboard(this);
 }
 
 void MainWindow::OnSizeChanged() {
-    Rect window_size =  this->GetInteriorSize();
+    Rect window_size = this->GetInteriorSize();
     uint16_t btns_width = window_size.GetWidth() / 2;
     uint16_t btns_height = BTNS_HEIGHT;
 
     m_pBtnPortMonitor->SetSize(Rect(btns_width, btns_height));
     m_pBtnPortMonitor->SetPosition(Point(0, 0));
-    m_pBtnPortMonitor->ReDraw();
 
     m_pBtnVisualization->SetSize(Rect(btns_width, btns_height));
     m_pBtnVisualization->SetPosition(Point(btns_width, 0));
-    m_pBtnVisualization->SetBackColor(BTNS_COLOR);
+
+    m_pSclPortMonitor->SetSize(Rect(WIN_WIDTH, WIN_HEIGHT - btns_height));
+    m_pSclPortMonitor->SetPosition(Point(0, btns_height));
 }
 
 void MainWindow::OnDraw(Context *cr) {
@@ -95,7 +114,11 @@ void MainWindow::OnNotify(Window *child, uint32_t type, const Point &position) {
 
     switch (type) {
         case EVENT_BTN_PORT_MONITOR:
+            m_pLstPortMonitor->Start();
+            break;
         case EVENT_BTN_VISUALIZATION:
+            m_pLstPortMonitor->Stop();
+            break;
         default:;
     }
 }
@@ -105,6 +128,8 @@ bool MainWindow::OnKeyPress(uint64_t keyval) {
         case 'q':
             DeleteMe();
             return true;
+        case 's':
+            m_pLstPortMonitor->Start();
         default:;
     }
     return true;

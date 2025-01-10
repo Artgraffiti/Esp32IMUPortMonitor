@@ -11,7 +11,7 @@ OBJS = $(addprefix $(OUT_O_DIR)/,$(SRCS:.cc=.o))
 OUT_O_DIR ?= build
 EXE = myprog
 
-MYPROG_SRCS = myprog.cc
+MYPROG_SRCS = myprog.cc port_monitor.cc
 MYPROG_OBJS = $(addprefix $(OUT_O_DIR)/,$(MYPROG_SRCS:.cc=.o))
 
 .PHONY: all

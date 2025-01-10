@@ -84,7 +84,7 @@ void PortMonitor::Run() {
                 Text *pTxt = new Text(line);
                 pTxt->SetFont(0, 16, -1, -1);
                 pTxt->SetAlignment(TEXT_ALIGNV_MASK);
-                Insert(GetNumberOfElements(), pTxt);
+                Insert(0, pTxt);
                 line_pos = 0;  // Сбрасываем позицию для следующей строки
             } else {
                 line[line_pos++] = read_buffer[i];  // Добавляем символ в строку
@@ -95,4 +95,14 @@ void PortMonitor::Run() {
     if ((tcsetattr(port_fd, TCSANOW, &oldPortSettings)) != 0)
         fprintf(stderr, "ERROR! in restore old termios attributes\n");
     close(port_fd);
+}
+
+void PortMonitor::Insert(const uint16_t position, Window *pElement, void *value) {
+    std::lock_guard<std::mutex> lock(mtx);
+    List::Insert(position, pElement, value);
+}
+
+void PortMonitor::Clear() {
+    std::lock_guard<std::mutex> lock(mtx);
+    List::Clear();
 }
