@@ -19,7 +19,7 @@
 #define PM_LINE_HEIGHT 20
 
 enum UserEventType {
-    EVENT_BTN_PORT_MONITOR = 2,
+    EVENT_BTN_PORT_MONITOR = 5,
     EVENT_BTN_VISUALIZATION,
 };
 
@@ -68,10 +68,10 @@ void MainWindow::OnCreate() {
     m_pSclPortMonitor->SetBackColor(WIN_BCK_COLOR);
     AddChild(m_pSclPortMonitor, Point(0, btns_height), Rect(WIN_WIDTH, WIN_HEIGHT - btns_height));
     m_pPortMonitor = new PortMonitor();
-    m_pPortMonitor->SetBackColor(WIN_BCK_COLOR);
     m_pPortMonitor->SetElementHeight(PM_LINE_HEIGHT);
     m_pPortMonitor->SetSelBackColor(RGB(0, 1, 0));
     m_pSclPortMonitor->SetDataWindow(m_pPortMonitor);
+    m_pSclPortMonitor->Hide();
 
 #if 0
     for (int i = 0; i < 1000; i++) {
@@ -93,6 +93,7 @@ void MainWindow::OnDraw(Context *cr) {
 
     cr->SetColor(WIN_BCK_COLOR);
     cr->FillRectangle(Point(0, 0), wsize);
+    CaptureKeyboard(this);
 }
 
 void MainWindow::OnNotify(Window *child, uint32_t type, const Point &position) {
@@ -101,9 +102,11 @@ void MainWindow::OnNotify(Window *child, uint32_t type, const Point &position) {
     switch (type) {
         case EVENT_BTN_PORT_MONITOR:
             m_pPortMonitor->Start();
+            m_pSclPortMonitor->Show();
             break;
         case EVENT_BTN_VISUALIZATION:
             m_pPortMonitor->Stop();
+            m_pSclPortMonitor->Hide();
             break;
         default:;
     }
@@ -114,8 +117,16 @@ bool MainWindow::OnKeyPress(uint64_t keyval) {
         case 'q':
             DeleteMe();
             return true;
-        case 's':
+        case 'c':
+            m_pSclPortMonitor->Show();
             m_pPortMonitor->Start();
+            break;
+        case 's':
+            m_pPortMonitor->Stop();
+            break;
+        case KEY_Esc:
+            m_pPortMonitor->Clear();
+            break;
         default:;
     }
     return true;

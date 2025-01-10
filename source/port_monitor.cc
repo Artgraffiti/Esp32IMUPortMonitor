@@ -1,13 +1,5 @@
 #include "port_monitor.h"
 
-void PortMonitor::SetBackColor(const RGB backColor) {
-    m_backColor = backColor;
-}
-
-RGB  PortMonitor::GetBackColor() {
-    return m_backColor;
-}
-
 void PortMonitor::OnDraw(Context *cr) {
     cr->SetColor(GetBackColor());
     cr->FillRectangle(Point(0,0), GetInteriorSize());

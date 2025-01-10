@@ -24,8 +24,6 @@ class PortMonitor : public List {
    public:
     PortMonitor() { isRunning = false; }
     ~PortMonitor() { Stop(); }
-    void SetBackColor(const RGB backColor);
-    RGB GetBackColor();
     void OnDraw(Context *cr);
 
     void Start();
@@ -40,7 +38,6 @@ class PortMonitor : public List {
     std::atomic_bool isRunning;
     std::mutex mtx;
     std::thread thread_read;
-    RGB m_backColor;
 
     void Delete(const uint16_t n);
     void Setup();
