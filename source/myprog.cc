@@ -151,11 +151,18 @@ void MainWindow::OnDraw(Context *cr) {
 
     cr->SetColor(WIN_BCK_COLOR);
     cr->FillRectangle(Point(0, 0), wsize);
+
     struct rotation *data;
     if (m_pPortMonitor->GetNumberOfElements() > 0) {
         data = (rotation*)m_pPortMonitor->GetValue(0);
         m_pCube->SetAngleX(data->roll);
         m_pCube->SetAngleY(data->pitch);
+
+        char txt1[30], txt2[30];
+        sprintf(txt1, "Угол OX: %.2f", data->roll);
+        m_pTxtAngleX->SetText(txt1);
+        sprintf(txt2, "Угол OY: %.2f", data->pitch);
+        m_pTxtAngleY->SetText(txt2);
     }
 
     CaptureKeyboard(this);

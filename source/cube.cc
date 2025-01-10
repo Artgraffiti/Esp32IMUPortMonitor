@@ -31,34 +31,29 @@ void RotatingCube::OnDraw(Context* cr) {
 
     cr->SetColor(m_cubeColor);
 
-    UpdateVertices();  // Обновление вершин
+    UpdateVertices();
 
     for (const auto& edge : edges) {
         Point p1 = projectedVertices[edge.first];
         Point p2 = projectedVertices[edge.second];
         cr->SetColor(m_cubeColor);
-        cr->Line(p1, p2);  // Рисуем линию между двумя проекциями
+        cr->Line(p1, p2);
     }
 }
 
 Point3D Rotate(const Point3D& p, float ax, float ay) {
-    // Преобразуем углы в радианы
-    float ax_rad = ax * M_PI / 180.0f;  // угол по оси X
-    float ay_rad = ay * M_PI / 180.0f;  // угол по оси Y
+    float ax_rad = ax * M_PI / 180.0f;
+    float ay_rad = ay * M_PI / 180.0f;
 
-    // Вычисление синусов и косинусов
     float cosX = cos(ax_rad), sinX = sin(ax_rad);
     float cosY = cos(ay_rad), sinY = sin(ay_rad);
 
-    // Ротация по оси X
     float y = p.y * cosX - p.z * sinX;
     float z = p.y * sinX + p.z * cosX;
 
-    // Ротация по оси Y
     float x = p.x * cosY + z * sinY;
     z = -p.x * sinY + z * cosY;
 
-    // Возвращаем новые координаты
     return {x, y, z};
 }
 
@@ -85,7 +80,6 @@ void RotatingCube::UpdateVertices() {
     // Проекция на 2D плоскость
     projectedVertices.clear();
     for (const auto& v : vertices) {
-        // Простая ортографическая проекция: игнорируем координату z
         projectedVertices.push_back(Point(v.x + centerX, v.y + centerY));
     }
 }
