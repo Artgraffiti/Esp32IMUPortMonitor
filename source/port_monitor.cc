@@ -99,7 +99,6 @@ void PortMonitor::Run() {
                 // Add new line as element
                 Text *pTxt = new Text(line);
                 pTxt->SetFont(0, 16, -1, -1);
-                pTxt->SetBackColor(RGB(1, 0, 0));
                 pTxt->SetAlignment(TEXT_ALIGNV_MASK);
                 Insert(0, pTxt);
             } else {
