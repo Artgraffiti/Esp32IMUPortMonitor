@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <utility>
 
 #include "port_monitor.h"
 #include "cube.h"
@@ -150,8 +151,12 @@ void MainWindow::OnDraw(Context *cr) {
 
     cr->SetColor(WIN_BCK_COLOR);
     cr->FillRectangle(Point(0, 0), wsize);
-    m_pCube->SetAngleX(m_pCube->GetAngleX() + 2);
-    // m_pCube->SetAngleY(m_pCube->GetAngleY() + 2);
+    struct rotation *data;
+    if (m_pPortMonitor->GetNumberOfElements() > 0) {
+        data = (rotation*)m_pPortMonitor->GetValue(0);
+        m_pCube->SetAngleX(data->roll);
+        m_pCube->SetAngleY(data->pitch);
+    }
 
     CaptureKeyboard(this);
 }

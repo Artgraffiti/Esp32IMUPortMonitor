@@ -25,6 +25,10 @@
 #include <string>
 #include <thread>
 
+struct rotation {
+    float roll, pitch;
+};
+
 class PortMonitor : public List {
    public:
     PortMonitor(const std::string &port_path)

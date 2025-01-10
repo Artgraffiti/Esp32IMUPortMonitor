@@ -1,4 +1,13 @@
 #include "port_monitor.h"
+#include <cstdio>
+#include <string>
+#include <regex>
+
+void remove_color_sequences(std::string& str) {
+    // Регулярное выражение для ANSI escape sequences
+    std::regex color_regex("\033\\[[0-9;]*m");
+    str = std::regex_replace(str, color_regex, "");
+}
 
 void PortMonitor::OnDraw(Context *cr) {
     cr->SetColor(GetBackColor());
@@ -86,12 +95,16 @@ void PortMonitor::Run() {
                  line_pos >= (int)(sizeof(line) - 1))) {
                 line[line_pos] = '\0';  // Завершаем строку
                 line_pos = 0;  // Сбрасываем позицию для следующей строки
+                std::string formated_line = line;
+                remove_color_sequences(formated_line);
+                struct rotation data;
+                sscanf(formated_line.c_str(), "%*[^r]roll=%f%*[^p]pitch=%f", &data.roll, &data.pitch);
 
                 // Add new line as element
-                Text *pTxt = new Text(line);
+                Text *pTxt = new Text(formated_line.c_str());
                 pTxt->SetFont(0, 16, -1, -1);
                 pTxt->SetAlignment(TEXT_ALIGNV_MASK);
-                Insert(0, pTxt);
+                Insert(0, pTxt, &data);
             } else {
                 line[line_pos++] = read_buffer[i];  // Добавляем символ в строку
             }
