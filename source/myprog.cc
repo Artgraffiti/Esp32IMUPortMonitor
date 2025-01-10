@@ -18,6 +18,12 @@
 #define BTNS_FRAME_COLOR H_RGB(0x31363D)
 #define BTNS_HEIGHT 60
 #define PM_LINE_HEIGHT 20
+#define CUBE_SIZE 150
+#define CUBE_VIEW_WIDTH 600
+#define CUBE_VIEW_HEIGHT 600
+#define TXT_INFO_WIDTH 200
+#define TXT_INFO_HEIGHT 30
+#define TXT_INFO_SIZE 25
 
 enum UserEventType {
     EVENT_BTN_PORT_MONITOR = 5,
@@ -41,6 +47,8 @@ class MainWindow : public Window {
         *m_pBtnStart, *m_pBtnStop;
     Scroll *m_pSclPortMonitor;
     PortMonitor *m_pPortMonitor;
+    Text *m_pTxtAngleX;
+    Text *m_pTxtAngleY;
     RotatingCube *m_pCube;
 };
 
@@ -110,11 +118,28 @@ void MainWindow::OnCreate() {
     m_pBtnStop->SetFontSize(26);
     m_pBtnStop->SetTextColor(H_RGB(0xffffff));
 
+    // Rotation info
+    m_pTxtAngleX = new Text("Угол OX: 0");
+    AddChild(m_pTxtAngleX, Point(60, 100),
+             Rect(TXT_INFO_WIDTH, TXT_INFO_HEIGHT));
+    m_pTxtAngleX->SetFont(0, TXT_INFO_SIZE, -1, -1);
+    m_pTxtAngleX->SetBackColor(WIN_BCK_COLOR);
+    m_pTxtAngleX->SetAlignment(TEXT_ALIGNV_CENTER);
+    m_pTxtAngleX->SetTextColor(RGB(1, 1, 1));
+
+    m_pTxtAngleY = new Text("Угол OY: 0");
+    AddChild(m_pTxtAngleY, Point(60, 140),
+             Rect(TXT_INFO_WIDTH, TXT_INFO_HEIGHT));
+    m_pTxtAngleY->SetFont(0, TXT_INFO_SIZE, -1, -1);
+    m_pTxtAngleY->SetBackColor(WIN_BCK_COLOR);
+    m_pTxtAngleY->SetAlignment(TEXT_ALIGNV_CENTER);
+    m_pTxtAngleY->SetTextColor(RGB(1, 1, 1));
+
     // Draw Cube
     m_pSclPortMonitor->Hide();
     m_pCube = new RotatingCube();
-    m_pCube->SetCubeSize(80);
-    AddChild(m_pCube, Point(700, 200), Rect(400, 400));
+    m_pCube->SetCubeSize(CUBE_SIZE);
+    AddChild(m_pCube, Point(WIN_WIDTH / 2 - CUBE_VIEW_WIDTH / 2, WIN_HEIGHT / 2 - CUBE_VIEW_HEIGHT / 2), Rect(CUBE_VIEW_WIDTH, CUBE_VIEW_HEIGHT));
 
     CaptureKeyboard(this);
 }
