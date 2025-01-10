@@ -12,6 +12,7 @@ OUT_O_DIR ?= build
 EXE = myprog
 
 MYPROG_SRCS = myprog.cc port_monitor.cc
+MYPROG_HDRS = port_monitor.h
 MYPROG_OBJS = $(addprefix $(OUT_O_DIR)/,$(MYPROG_SRCS:.cc=.o))
 
 .PHONY: all
@@ -24,7 +25,7 @@ $(OUT_O_DIR)/%.o: source/%.cc $(addprefix source/,$(HEADERS))
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(EXE): $(LIB) $(MYPROG_OBJS)
+$(EXE): $(LIB) $(MYPROG_OBJS) $(addprefix source/,$(MYPROG_HDRS))
 	$(CC) $(MYPROG_OBJS) $(LIB) -o $(EXE) $(LDFLAGS)
 
 .PHONY: cif

@@ -1,5 +1,18 @@
 #include "port_monitor.h"
 
+void PortMonitor::SetBackColor(const RGB backColor) {
+    m_backColor = backColor;
+}
+
+RGB  PortMonitor::GetBackColor() {
+    return m_backColor;
+}
+
+void PortMonitor::OnDraw(Context *cr) {
+    cr->SetColor(GetBackColor());
+    cr->FillRectangle(Point(0,0), GetInteriorSize());
+}
+
 void PortMonitor::Start() {
     if (!isRunning) {
         isRunning = true;
@@ -86,6 +99,7 @@ void PortMonitor::Run() {
                 // Add new line as element
                 Text *pTxt = new Text(line);
                 pTxt->SetFont(0, 16, -1, -1);
+                pTxt->SetBackColor(RGB(1, 0, 0));
                 pTxt->SetAlignment(TEXT_ALIGNV_MASK);
                 Insert(0, pTxt);
             } else {

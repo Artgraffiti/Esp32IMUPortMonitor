@@ -35,7 +35,7 @@ class MainWindow : public Window {
    private:
     TextButton *m_pBtnPortMonitor, *m_pBtnVisualization;
     Scroll *m_pSclPortMonitor;
-    PortMonitor *m_pLstPortMonitor;
+    PortMonitor *m_pPortMonitor;
 };
 
 void MainWindow::OnCreate() {
@@ -65,10 +65,12 @@ void MainWindow::OnCreate() {
     m_pBtnVisualization->SetTextColor(H_RGB(0xffffff));
 
     m_pSclPortMonitor = new Scroll;
+    m_pSclPortMonitor->SetBackColor(WIN_BCK_COLOR);
     AddChild(m_pSclPortMonitor, Point(0, btns_height), Rect(WIN_WIDTH, WIN_HEIGHT - btns_height));
-    m_pLstPortMonitor = new PortMonitor();
-    m_pLstPortMonitor->SetElementHeight(PM_LINE_HEIGHT);
-    m_pSclPortMonitor->SetDataWindow(m_pLstPortMonitor);
+    m_pPortMonitor = new PortMonitor();
+    m_pPortMonitor->SetBackColor(WIN_BCK_COLOR);
+    m_pPortMonitor->SetElementHeight(PM_LINE_HEIGHT);
+    m_pSclPortMonitor->SetDataWindow(m_pPortMonitor);
 
 #if 0
     for (int i = 0; i < 1000; i++) {
@@ -77,7 +79,7 @@ void MainWindow::OnCreate() {
         Text *pTxt = new Text(buff);
         pTxt->SetFont(0, 16, -1, -1);
         pTxt->SetAlignment(TEXT_ALIGNV_MASK);
-        m_pLstPortMonitor->Insert(0, pTxt);
+        m_pPortMonitor->Insert(0, pTxt);
     }
 #endif
 
@@ -86,7 +88,7 @@ void MainWindow::OnCreate() {
 
 void MainWindow::OnDraw(Context *cr) {
     std::cout << "MainWindow::OnDraw()" << std::endl;
-    Point wsize = GetInteriorSize();
+    Rect wsize = GetInteriorSize();
 
     cr->SetColor(WIN_BCK_COLOR);
     cr->FillRectangle(Point(0, 0), wsize);
@@ -97,10 +99,10 @@ void MainWindow::OnNotify(Window *child, uint32_t type, const Point &position) {
 
     switch (type) {
         case EVENT_BTN_PORT_MONITOR:
-            m_pLstPortMonitor->Start();
+            m_pPortMonitor->Start();
             break;
         case EVENT_BTN_VISUALIZATION:
-            m_pLstPortMonitor->Stop();
+            m_pPortMonitor->Stop();
             break;
         default:;
     }
@@ -112,7 +114,7 @@ bool MainWindow::OnKeyPress(uint64_t keyval) {
             DeleteMe();
             return true;
         case 's':
-            m_pLstPortMonitor->Start();
+            m_pPortMonitor->Start();
         default:;
     }
     return true;
