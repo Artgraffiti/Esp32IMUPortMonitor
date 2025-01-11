@@ -5,6 +5,7 @@
 
 #include "port_monitor.h"
 #include "cube.h"
+#include "edit.h"
 
 #define H_RGB(hex)                                \
     RGB((double)(((hex) & 0xff0000) >> 16) / 256, \
@@ -17,10 +18,12 @@
 #define BTNS_COLOR H_RGB(0x010409)
 #define BTNS_FRAME_COLOR H_RGB(0x31363D)
 #define BTNS_HEIGHT 60
+#define EDIT_HEIGHT 40
+#define TXT_PORT_INFO_SIZE 18
 #define PM_LINE_HEIGHT 20
-#define CUBE_SIZE 150
-#define CUBE_VIEW_WIDTH 600
-#define CUBE_VIEW_HEIGHT 600
+#define CUBE_SIZE 130
+#define CUBE_VIEW_WIDTH 500
+#define CUBE_VIEW_HEIGHT CUBE_VIEW_WIDTH
 #define TXT_INFO_WIDTH 200
 #define TXT_INFO_HEIGHT 30
 #define TXT_INFO_SIZE 25
@@ -45,6 +48,8 @@ class MainWindow : public Window {
    private:
     TextButton *m_pBtnPortMonitor, *m_pBtnVisualization, *m_pBtnClear,
         *m_pBtnStart, *m_pBtnStop;
+    Edit *m_pEditPortPath;
+    Text *m_pTxtPortPathInfo;
     Scroll *m_pSclPortMonitor;
     PortMonitor *m_pPortMonitor;
     Text *m_pTxtAngleX;
@@ -78,11 +83,19 @@ void MainWindow::OnCreate() {
     m_pBtnVisualization->SetFontSize(26);
     m_pBtnVisualization->SetTextColor(H_RGB(0xffffff));
 
+    m_pEditPortPath = new Edit("/dev/ttyACM0");
+    AddChild(m_pEditPortPath, Point(0, btns_height), Rect(window_size.GetWidth() / 2, EDIT_HEIGHT));
+
+    m_pTxtPortPathInfo = new Text("Укажите путь к устройству");
+    AddChild(m_pTxtPortPathInfo, Point(window_size.GetWidth() / 2, btns_height), Rect(window_size.GetWidth() / 2, EDIT_HEIGHT));
+    m_pTxtPortPathInfo->SetFont(0, TXT_PORT_INFO_SIZE, -1, -1);
+    m_pTxtPortPathInfo->SetAlignment(TEXT_ALIGNH_CENTER | TEXT_ALIGNV_CENTER);
+
     m_pSclPortMonitor = new Scroll;
     m_pSclPortMonitor->SetBackColor(WIN_BCK_COLOR);
-    AddChild(m_pSclPortMonitor, Point(0, btns_height),
-             Rect(WIN_WIDTH, WIN_HEIGHT - 2 * btns_height));
-    m_pPortMonitor = new PortMonitor("/dev/ttyACM0");
+    AddChild(m_pSclPortMonitor, Point(0, btns_height + EDIT_HEIGHT),
+             Rect(WIN_WIDTH, WIN_HEIGHT - 2 * btns_height - EDIT_HEIGHT));
+    m_pPortMonitor = new PortMonitor();
     m_pPortMonitor->SetElementHeight(PM_LINE_HEIGHT);
     m_pPortMonitor->SetSelBackColor(RGB(0, 1, 0));
     m_pSclPortMonitor->SetDataWindow(m_pPortMonitor);
@@ -120,7 +133,7 @@ void MainWindow::OnCreate() {
 
     // Rotation info
     m_pTxtAngleX = new Text("Крен: 0");
-    AddChild(m_pTxtAngleX, Point(60, 100),
+    AddChild(m_pTxtAngleX, Point(60, 150),
              Rect(TXT_INFO_WIDTH, TXT_INFO_HEIGHT));
     m_pTxtAngleX->SetFont(0, TXT_INFO_SIZE, -1, -1);
     m_pTxtAngleX->SetBackColor(WIN_BCK_COLOR);
@@ -128,7 +141,7 @@ void MainWindow::OnCreate() {
     m_pTxtAngleX->SetTextColor(RGB(1, 1, 1));
 
     m_pTxtAngleY = new Text("Тангаж: 0");
-    AddChild(m_pTxtAngleY, Point(60, 140),
+    AddChild(m_pTxtAngleY, Point(60, 190),
              Rect(TXT_INFO_WIDTH, TXT_INFO_HEIGHT));
     m_pTxtAngleY->SetFont(0, TXT_INFO_SIZE, -1, -1);
     m_pTxtAngleY->SetBackColor(WIN_BCK_COLOR);
@@ -167,12 +180,15 @@ void MainWindow::OnDraw(Context *cr) {
         m_pTxtAngleY->SetText(txt2);
     }
 
-    CaptureKeyboard(this);
+    if (m_pPortMonitor->IsRunning()) {
+        CaptureKeyboard(this);
+    }
 }
 
 void MainWindow::OnNotify(Window *child, uint32_t type, const Point &position) {
     std::cout << "MainWindow::OnNotify()" << std::endl;
 
+    int err = 0;
     switch (type) {
         case EVENT_BTN_PORT_MONITOR:
             m_pSclPortMonitor->Show();
@@ -180,6 +196,7 @@ void MainWindow::OnNotify(Window *child, uint32_t type, const Point &position) {
             break;
         case EVENT_BTN_VISUALIZATION:
             m_pPortMonitor->Stop();
+            CaptureKeyboard(this);
             m_pSclPortMonitor->Hide();
             ReDraw();
             break;
@@ -187,26 +204,39 @@ void MainWindow::OnNotify(Window *child, uint32_t type, const Point &position) {
             m_pPortMonitor->Clear();
             break;
         case EVENT_BTN_START:
+            m_pPortMonitor->SetPortPath(m_pEditPortPath->GetText());
             m_pPortMonitor->Clear();
-            m_pPortMonitor->Start();
+            err = m_pPortMonitor->Start();
+            if (err == -1) {
+                m_pTxtPortPathInfo->SetText("Неверно указан путь к устройству или оно не подключено");
+                ReDraw();
+            }
             break;
         case EVENT_BTN_STOP:
             m_pPortMonitor->Stop();
+            CaptureKeyboard(this);
             break;
         default:;
     }
 }
 
 bool MainWindow::OnKeyPress(uint64_t keyval) {
+    int err = 0;
     switch (keyval) {
         case 'q':
             DeleteMe();
             return true;
         case 'c':
-            m_pPortMonitor->Start();
+            m_pPortMonitor->SetPortPath(m_pEditPortPath->GetText());
+            err = m_pPortMonitor->Start();
+            if (err == -1) {
+                m_pTxtPortPathInfo->SetText("Неверно указан путь к устройству или оно не подключено");
+                ReDraw();
+            }
             break;
         case 's':
             m_pPortMonitor->Stop();
+            CaptureKeyboard(this);
             break;
         case KEY_Esc:
             m_pPortMonitor->Clear();

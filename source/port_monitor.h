@@ -31,12 +31,13 @@ struct rotation {
 
 class PortMonitor : public List {
    public:
-    PortMonitor(const std::string &port_path)
-        : portPath(port_path), isRunning(false) {}
+    PortMonitor() : portPath(), isRunning(false) {}
     ~PortMonitor() { Stop(); }
     void OnDraw(Context *cr);
 
-    void Start();
+    bool IsRunning() { return isRunning; }
+    void SetPortPath(const std::string &port_path);
+    int Start();
     void Stop();
 
     void Insert(const uint16_t position, Window *pElement,
@@ -52,7 +53,7 @@ class PortMonitor : public List {
     std::thread thread_read;
 
     void Delete(const uint16_t n);
-    void Setup();
+    int Setup();
     void Run();
 };
 

@@ -51,8 +51,8 @@ Point3D Rotate(const Point3D& p, float ax, float ay) {
     float y = p.y * cosX - p.z * sinX;
     float z = p.y * sinX + p.z * cosX;
 
-    float x = p.x * cosY + z * sinY;
-    z = -p.x * sinY + z * cosY;
+    float x = p.x * cosY - y * sinY;
+    y = p.x * sinY + y * cosY;
 
     return {x, y, z};
 }

@@ -15,12 +15,22 @@ void PortMonitor::OnDraw(Context *cr) {
     cr->FillRectangle(Point(0, 0), GetInteriorSize());
 }
 
-void PortMonitor::Start() {
+void PortMonitor::SetPortPath(const std::string &port_path) {
+    portPath = port_path;
+}
+
+int PortMonitor::Start() {
+    int err = 0;
     if (!isRunning) {
         isRunning = true;
-        Setup();
+        err = Setup();
+        if (err != 0) {
+            isRunning = false;
+            return err;
+        } 
         thread_read = std::thread(&PortMonitor::Run, this);
     }
+    return 0;
 }
 
 void PortMonitor::Stop() {
@@ -32,11 +42,11 @@ void PortMonitor::Stop() {
     }
 }
 
-void PortMonitor::Setup() {
+int PortMonitor::Setup() {
     port_fd = open(portPath.c_str(), O_RDONLY | O_NOCTTY);
     if (port_fd < 0) {
         perror("Error opening port");
-        exit(EXIT_FAILURE);
+        return -1;
     }
 
     tcgetattr(port_fd, &oldPortSettings);
@@ -65,8 +75,9 @@ void PortMonitor::Setup() {
 
     if ((tcsetattr(port_fd, TCSANOW, &newPortSettings)) != 0) {
         fprintf(stderr, "ERROR! in Setting new termios attributes\n");
-        exit(EXIT_FAILURE);
+        return -1;
     }
+    return 0;
 }
 
 void PortMonitor::Run() {
